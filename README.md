@@ -55,19 +55,19 @@ A web-based management system designed for Matendeni Early Childhood Development
 
 | Screenshot | Description |
 |------------|-------------|
-| ![1](screenshots/1.jpg) | Dashboard overview with total students and income |
-| ![2](screenshots/2.png) | Adding a new student |
-| ![3](screenshots/3.png) | Student list view |
-| ![4](screenshots/4.png) | Adding fees for a student |
-| ![5](screenshots/5.png) | Fee history for active term |
-| ![6](screenshots/6.png) | Adding marks for a student |
-| ![7](screenshots/7.png) | Marks history view |
-| ![8](screenshots/8.png) | Completed students list |
-| ![9](screenshots/9.png) | Viewing payment history for completed student |
-| ![10](screenshots/10.png) | Viewing marks history for completed student |
-| ![11](screenshots/10.png) | Viewing marks history for completed student |
-| ![12](screenshots/10.png) | Viewing marks history for completed student |
-| ![13](screenshots/10.png) | Viewing marks history for completed student |
+| ![1](screenshot/1.jpg) | Dashboard overview with total students and income |
+| ![2](screenshot/2.png) | Adding a new student |
+| ![3](screenshot/3.png) | Student list view |
+| ![4](screenshot/4.png) | Adding fees for a student |
+| ![5](screenshot/5.png) | Fee history for active term |
+| ![6](screenshot/6.png) | Adding marks for a student |
+| ![7](screenshot/7.png) | Marks history view |
+| ![8](screenshot/8.png) | Completed students list |
+| ![9](screenshot/9.png) | Viewing payment history for completed student |
+| ![10](screenshot/10.png) | Viewing marks history for completed student |
+| ![11](screenshot/10.png) | Viewing marks history for completed student |
+| ![12](screenshot/10.png) | Viewing marks history for completed student |
+| ![13](screenshot/10.png) | Viewing marks history for completed student |
 
 
 ---
