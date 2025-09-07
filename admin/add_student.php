@@ -34,7 +34,7 @@ if(isset($_POST['add'])){
 }
 
 // Fetch students for table
-$students = mysqli_query($conn, "SELECT * FROM students ORDER BY id DESC");
+$students = mysqli_query($conn, "SELECT * FROM students WHERE status='active' ORDER BY id DESC");
 ?>
 <!DOCTYPE html>
 <html>
@@ -144,9 +144,9 @@ $students = mysqli_query($conn, "SELECT * FROM students ORDER BY id DESC");
                     <input type="text" name="admission" placeholder="Admission Number" required>
                     <select name="class" required>
                         <option value="">Select Class</option>
+                        <option value="Play Group">Play Group</option>
                         <option value="PP1">PP1</option>
                         <option value="PP2">PP2</option>
-                        <option value="PP3">PP3</option>
                     </select>
                     <select name="gender" required>
                         <option value="">Select Gender</option>

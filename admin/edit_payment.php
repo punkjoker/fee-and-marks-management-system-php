@@ -43,18 +43,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newBalance = $student['balance'] - $amount;
 
     // insert payment record
-   $stmt = $conn->prepare("
-    INSERT INTO payments (admission_no, term_id, amount_paid, balance, receipt_no, term, payment_date) 
-    VALUES (?, ?, ?, ?, ?, ?, NOW())
-");
-$stmt->bind_param("sidsss", $admission_no, $term_id, $amount, $newBalance, $receipt_no, $termDisplay);
-
+    $stmt = $conn->prepare("
+        INSERT INTO payments (admission_no, term_id, amount_paid, balance, receipt_no, term, payment_date) 
+        VALUES (?, ?, ?, ?, ?, ?, NOW())
+    ");
+    $stmt->bind_param("sidsss", $admission_no, $term_id, $amount, $newBalance, $receipt_no, $termDisplay);
     $stmt->execute();
     $stmt->close();
+
+    // ✅ update student_fees table balance
+    $update = $conn->prepare("
+        UPDATE student_fees 
+        SET balance = ? 
+        WHERE admission_no = ? AND term_id = ?
+    ");
+    $update->bind_param("dsi", $newBalance, $admission_no, $term_id);
+    $update->execute();
+    $update->close();
 
     header("Location: add_fees.php?updated=1");
     exit();
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

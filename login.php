@@ -31,35 +31,112 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Admin Login | Matendeni ECD</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<meta charset="UTF-8">
+<title>Admin Login | Matendeni ECD</title>
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: url('images/login.jpg') no-repeat center center fixed;
+        background-size: cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .login-container {
+        background: rgba(75, 0, 130, 0.95); /* Semi-transparent purple */
+        padding: 40px 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        width: 350px;
+        text-align: center;
+        color: #fff;
+    }
+    .login-container h3 {
+        margin-bottom: 25px;
+        color: #FFA500; /* Orange heading */
+        font-size: 28px;
+    }
+    .login-container input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        border: none;
+        outline: none;
+        font-size: 16px;
+    }
+    .login-container input[type="email"],
+    .login-container input[type="password"] {
+        background: #fff;
+        color: #4B0082;
+    }
+    .login-container button {
+        width: 100%;
+        padding: 12px;
+        background: #FFA500;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #4B0082;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .login-container button:hover {
+        background: #ff8c00;
+        color: #fff;
+    }
+    .login-container .alert {
+        background: #ff6347;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-weight: bold;
+    }
+    .login-container a {
+        color: #FFA500;
+        text-decoration: none;
+    }
+    .login-container a:hover {
+        text-decoration: underline;
+    }
+    .back-home {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 8px 15px;
+        background: #fff;
+        color: #4B0082;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .back-home:hover {
+        background: #FFA500;
+        color: #fff;
+    }
+</style>
 </head>
-<body class="bg-light">
-  <div class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-md-5">
-        <div class="card p-4 shadow-lg">
-          <h3 class="text-center mb-3">Admin Login</h3>
-          <?php if($message) echo "<div class='alert alert-danger'>$message</div>"; ?>
-          <form method="POST">
-            <div class="mb-3">
-              <label>Email</label>
-              <input type="email" name="email" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label>Password</label>
-              <input type="password" name="password" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-success w-100">Login</button>
-            <div class="text-center mt-3">
-              <a href="signup.php">Don't have an account? Signup</a>
-            </div>
-          </form>
-        </div>
-      </div>
+<body>
+
+<div class="login-container">
+    <h3>Admin Login</h3>
+    <?php if($message) echo "<div class='alert'>$message</div>"; ?>
+    <form method="POST">
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+    <div style="margin-top: 15px;">
+        <a href="signup.php">Don't have an account? Signup</a>
     </div>
-  </div>
+    <a href="index.php" class="back-home">Back to Home</a>
+</div>
+
 </body>
 </html>

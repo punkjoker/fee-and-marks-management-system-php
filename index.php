@@ -96,7 +96,7 @@ session_start();
       <div class="col-md-8 text-center">
         <h2 class="mb-4 text-purple">About This System</h2>
         <p class="lead">
-          This platform helps manage students, fees, and marks for PP1, PP2, and PP3 classes. 
+          This platform helps manage students, fees, and marks for Play Group, PP1, and PP2 classes. 
           Administrators can track payments, balances, generate receipts, and manage student promotion.
         </p>
       </div>

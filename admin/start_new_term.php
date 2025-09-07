@@ -16,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $year       = $_POST['year'];
     $start_date = $_POST['start_date'];
     $end_date   = $_POST['end_date'];
+    $term_fee   = floatval($_POST['term_fee']); // manual fee input
 
     // 1. Complete any currently active term
     $conn->query("UPDATE terms SET status='completed' WHERE status='active'");
@@ -28,9 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $new_term_id = $stmt->insert_id;
     $stmt->close();
 
-    // 3. Carry forward balances & setup new student_fees
-    $students = $conn->query("SELECT * FROM students");
-
+    // 3. Handle student promotions and setup new fees
+    $students = $conn->query("SELECT * FROM students WHERE status='active'");
     while ($row = $students->fetch_assoc()) {
         $admission_no = $row['admission_no'];
         $class = $row['class'];
@@ -48,112 +48,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $last_balance = $p['balance'];
         }
 
-        // Default new term fee
-        $term_fee = 3500;
-
-        // If student completed PP3 in Term 3 → move to completed_students
-        if ($class === 'PP3' && $term_name === 'Term 3') {
+        // Handle promotions
+        if ($class === 'PP2' && $term_name === 'Term 1') {
+            // PP2 students finished school → move to completed_students
             $conn->query("INSERT INTO completed_students (admission_no, completion_year)
                           VALUES ('$admission_no', '$year')");
-            continue; // skip fees record
+            $conn->query("UPDATE students SET status='deactivated' WHERE admission_no='$admission_no'");
+            continue; // skip fee insertion
+        } elseif ($class === 'Playgroup') {
+            $new_class = 'PP1';
+        } elseif ($class === 'PP1') {
+            $new_class = 'PP2';
+        } elseif ($class === 'PP2') {
+            $new_class = 'PP2'; // they will be moved to completed above
+        } else {
+            $new_class = $class; // for any other class
         }
+
+        // Update student class
+        $conn->query("UPDATE students SET class='$new_class' WHERE admission_no='$admission_no'");
 
         // New balance includes carried forward
         $new_balance = $term_fee + $last_balance;
 
         // Insert into student_fees
-        $conn->query("INSERT INTO student_fees (admission_no, term_id, fee_amount, balance, carried_forward) 
-                      VALUES ('$admission_no', '$new_term_id', '$term_fee', '$new_balance', '$last_balance')");
+        $conn->query("INSERT INTO student_fees 
+            (admission_no, term_id, fee_amount, new_fee_amount, balance, carried_forward) 
+            VALUES 
+            ('$admission_no', '$new_term_id', '$term_fee', '$term_fee', '$new_balance', '$last_balance')");
     }
 
-    $success = "✅ New term started successfully and balances carried forward!";
+    $success = "✅ New term started successfully! Students promoted and balances carried forward.";
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Start New Term</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-        }
-        .content {
-            margin-left: 240px;
-            padding: 20px;
-            text-align: center;
-        }
-        h2 {
-            color: purple;
-            margin-bottom: 20px;
-        }
-        form {
-            background: #fff;
-            width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
-            text-align: left;
-        }
-        label {
-            display: block;
-            margin-bottom: 6px;
-            color: purple;
-            font-weight: bold;
-        }
-        input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-        }
-        button {
-            background: orange;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: darkorange;
-        }
-        .success {
-            color: green;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Start New Term</title>
+<style>
+body {margin:0;font-family:Arial,sans-serif;background:#f4f6f9;}
+.content {margin-left:240px;padding:20px;text-align:center;}
+h2 {color:purple;margin-bottom:20px;}
+form {background:#fff;width:400px;margin:0 auto;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1);text-align:left;}
+label {display:block;margin-bottom:6px;color:purple;font-weight:bold;}
+input {width:100%;padding:8px;margin-bottom:15px;border:1px solid #ddd;border-radius:6px;}
+button {background:orange;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;}
+button:hover {background:darkorange;}
+.success {color:green;margin-bottom:15px;font-weight:bold;}
+</style>
 </head>
 <body>
+<?php include 'sidebar.php'; ?>
+<div class="content">
+<h2>Start New Term</h2>
+<?php if (!empty($success)) echo "<p class='success'>$success</p>"; ?>
 
-    <?php include 'sidebar.php'; ?>
+<form method="POST" action="">
+    <label>Term Name</label>
+    <input type="text" name="term_name" required placeholder="e.g., Term 1">
 
-    <div class="content">
-        <h2>Start New Term</h2>
-        <?php if (!empty($success)) { echo "<p class='success'>$success</p>"; } ?>
+    <label>Year</label>
+    <input type="number" name="year" required value="<?php echo date('Y'); ?>">
 
-        <form method="POST" action="">
-            <label>Term Name</label>
-            <input type="text" name="term_name" required placeholder="e.g., Term 1">
+    <label>Start Date</label>
+    <input type="date" name="start_date" required>
 
-            <label>Year</label>
-            <input type="number" name="year" required value="<?php echo date('Y'); ?>">
+    <label>End Date</label>
+    <input type="date" name="end_date" required>
 
-            <label>Start Date</label>
-            <input type="date" name="start_date" required>
+    <label>Term Fee</label>
+    <input type="number" name="term_fee" required placeholder="Set fee for this term" value="3500">
 
-            <label>End Date</label>
-            <input type="date" name="end_date" required>
-
-            <button type="submit">Start Term</button>
-        </form>
-    </div>
-
+    <button type="submit">Start Term</button>
+</form>
+</div>
 </body>
 </html>

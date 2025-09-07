@@ -16,23 +16,29 @@ $exams_res = mysqli_query($conn, "SELECT * FROM exam_sessions ORDER BY id ASC");
 $classes_res = mysqli_query($conn, "SELECT DISTINCT class FROM students ORDER BY class ASC");
 
 // Build query
+// Build query
 $query = "SELECT s.*, s.class AS student_class, m.* 
           FROM students s 
           LEFT JOIN marks m ON s.admission_no = m.admission_no";
 
+// Always filter active students
+$conditions = ["s.status='active'"];
 
-$conditions = [];
-if($term_id) $conditions[] = "m.term_id='$term_id'";
-if($exam_id) $conditions[] = "m.exam_id='$exam_id'";
+// Add dynamic filters
+if($term_id)    $conditions[] = "(m.term_id='$term_id' OR m.term_id IS NULL)";
+if($exam_id)    $conditions[] = "(m.exam_id='$exam_id' OR m.exam_id IS NULL)";
 if($class_filter) $conditions[] = "s.class='$class_filter'";
 if($search) $conditions[] = "s.fullname LIKE '%$search%'";
 
+// Combine conditions
 if(!empty($conditions)) {
     $query .= " WHERE " . implode(' AND ', $conditions);
 }
 
 $query .= " ORDER BY s.fullname ASC";
+
 $result = mysqli_query($conn, $query);
+
 
 // Subjects
 $subjects = ['number_work'=>'Number Work', 'language'=>'Language', 'environment'=>'Environment', 'psychomotor'=>'Psychomotor', 'religious'=>'Religious', 'literacy'=>'Literacy'];

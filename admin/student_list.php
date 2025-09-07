@@ -5,7 +5,7 @@ include("db.php");
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $classFilter = isset($_GET['class']) ? $_GET['class'] : '';
 
-$query = "SELECT * FROM students WHERE 1";
+$query = "SELECT * FROM students WHERE status='active'";
 
 if (!empty($search)) {
     $query .= " AND fullname LIKE '%$search%'";
@@ -90,6 +90,21 @@ $result = mysqli_query($conn, $query);
         .btn-edit:hover {
             background: #e69500;
         }
+
+        .btn-transfer {
+    padding: 6px 12px;
+    background: #4B0082; /* Purple */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+.btn-transfer:hover {
+    background: #FFA500; /* Orange */
+    color: #fff;
+}
+
     </style>
 </head>
 <body>
@@ -103,9 +118,9 @@ $result = mysqli_query($conn, $query);
                 <input type="text" name="search" placeholder="Search by name" value="<?php echo $search; ?>">
                 <select name="class">
                     <option value="">Filter by Class</option>
+                    <option value="Play Group" <?php if($classFilter=="Play Group") echo "selected"; ?>>Play Group</option>
                     <option value="PP1" <?php if($classFilter=="PP1") echo "selected"; ?>>PP1</option>
                     <option value="PP2" <?php if($classFilter=="PP2") echo "selected"; ?>>PP2</option>
-                    <option value="PP3" <?php if($classFilter=="PP3") echo "selected"; ?>>PP3</option>
                 </select>
                 <button type="submit">🔍 Search</button>
             </form>
@@ -133,8 +148,15 @@ $result = mysqli_query($conn, $query);
                 <td><?php echo $row['parent_name']; ?></td>
                 <td><?php echo $row['parent_contact']; ?></td>
                 <td><?php echo $row['created_at']; ?></td>
-                <td><a href="edit_student.php?id=<?php echo $row['id']; ?>"><button class="btn-edit">✏️ Edit</button></a></td>
-            </tr>
+                <td>
+    <a href="edit_student.php?id=<?php echo $row['id']; ?>">
+        <button class="btn-edit">✏️ Edit</button>
+    </a>
+    <a href="transfer_student.php?id=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to transfer this student?');">
+        <button class="btn-transfer">📤 Transfer</button>
+    </a>
+</td>
+</tr>
             <?php } ?>
         </table>
     </div>

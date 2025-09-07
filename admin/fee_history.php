@@ -25,6 +25,7 @@ if ($selectedTerm === 0 && count($terms) > 0) {
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : "";
 
 // fetch student list with fees
+
 $query = "
     SELECT s.admission_no, s.fullname, s.class,
            IFNULL(SUM(p.amount_paid),0) AS total_paid,
@@ -32,7 +33,7 @@ $query = "
     FROM students s
     LEFT JOIN student_fees sf ON s.admission_no = sf.admission_no AND sf.term_id = $selectedTerm
     LEFT JOIN payments p ON s.admission_no = p.admission_no AND p.term_id = $selectedTerm
-    WHERE s.fullname LIKE '%$search%'
+    WHERE s.fullname LIKE '%$search%' AND s.status='active'
     GROUP BY s.admission_no, s.fullname, s.class, sf.fee_amount, sf.carried_forward
     ORDER BY s.fullname ASC
 ";
@@ -134,9 +135,11 @@ $studentsRes = $conn->query($query);
                 <td><?php echo htmlspecialchars($row['class']); ?></td>
                 <td><?php echo number_format($row['total_paid']); ?></td>
                 <td><?php echo number_format($row['balance']); ?></td>
-                <td>
-                    <a href="view_payment_history.php?admission_no=<?php echo $row['admission_no']; ?>&term_id=<?php echo $selectedTerm; ?>" class="btn">View History</a>
-                </td>
+               <td>
+    <a href="edit_payment.php?admission_no=<?php echo $row['admission_no']; ?>&term_id=<?php echo $selectedTerm; ?>" class="btn" style="margin-right:5px; background: purple;">Edit</a>
+    <a href="view_payment_history.php?admission_no=<?php echo $row['admission_no']; ?>&term_id=<?php echo $selectedTerm; ?>" class="btn">View History</a>
+</td>
+
             </tr>
             <?php endwhile; ?>
         </table>

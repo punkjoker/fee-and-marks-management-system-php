@@ -43,7 +43,7 @@ $subjects = [
 ];
 
 // Fetch students
-$query = "SELECT * FROM students ORDER BY fullname ASC";
+$query = "SELECT * FROM students WHERE status='active' ORDER BY fullname ASC";
 $result = mysqli_query($conn, $query);
 ?>
 
@@ -157,7 +157,7 @@ $result = mysqli_query($conn, $query);
             <th>Edit</th>
         </tr>
         <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-            <<tr>
+            <tr>
     <td><?php echo $row['fullname']; ?></td>
     <td><?php echo $row['class']; ?></td>
     <?php

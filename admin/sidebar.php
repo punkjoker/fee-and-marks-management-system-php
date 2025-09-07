@@ -21,8 +21,12 @@
   <!-- Completed Students Section -->
   <a href="#">🎓 Completed Students</a>
   <a href="completed_list.php" style="margin-left:15px;">📋 Completed List</a>
-  <a href="completed_reports.php" style="margin-left:15px;">📑 Reports</a>
-  
+ 
+  <!-- Expenses Section -->
+<a href="#">💸 Expenses</a>
+<a href="add_expense.php" style="margin-left:15px;">➕ Add Expense</a>
+<a href="expense_list.php" style="margin-left:15px;">📋 Expense List</a>
+
   <!-- Other Features -->
   <a href="logout.php" class="logout">🚪 Logout</a>
 </aside>

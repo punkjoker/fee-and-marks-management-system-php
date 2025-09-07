@@ -8,34 +8,56 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-// get current active term
-$currentTerm = $conn->query("SELECT term_name, year FROM terms WHERE status='active' ORDER BY id DESC LIMIT 1");
-$termInfo = $currentTerm->fetch_assoc();
-$termDisplay = $termInfo ? $termInfo['term_name']." - ".$termInfo['year'] : "No Active Term";
-
-// handle search
-$search = "";
-$where = "";
-if (!empty($_GET['search'])) {
-    $search = mysqli_real_escape_string($conn, $_GET['search']);
-    $where = "WHERE s.fullname LIKE '%$search%'";
+// get all terms for filter dropdown
+$termsRes = $conn->query("SELECT id, term_name, year FROM terms ORDER BY year DESC, id DESC");
+$terms = [];
+while ($row = $termsRes->fetch_assoc()) {
+    $terms[] = $row;
 }
 
-// fetch students with their fee balances for current term
+// selected term
+$selectedTerm = isset($_GET['term_id']) ? intval($_GET['term_id']) : 0;
+if ($selectedTerm === 0 && count($terms) > 0) {
+    $selectedTerm = $terms[0]['id']; // default to latest
+}
+
+// fetch term display
+$termInfoRes = $conn->query("SELECT term_name, year FROM terms WHERE id = $selectedTerm LIMIT 1");
+$termInfo = $termInfoRes->fetch_assoc();
+$termDisplay = $termInfo ? $termInfo['term_name'] . " - " . $termInfo['year'] : "No Active Term";
+
+// search by name
+$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : "";
+
+// fetch student list with latest payment for the selected term
 $query = "
     SELECT 
         s.admission_no, 
         s.fullname, 
-        s.class, 
-        IFNULL(SUM(p.amount_paid),0) AS total_paid,
-        (sf.fee_amount - IFNULL(SUM(p.amount_paid),0) + sf.carried_forward) AS balance
+        s.class,
+        COALESCE(lp.amount_paid, 0) AS total_paid,
+        (sf.fee_amount - COALESCE(lp.amount_paid, 0) + sf.carried_forward) AS balance
     FROM students s
-    LEFT JOIN student_fees sf ON s.admission_no = sf.admission_no
-    LEFT JOIN payments p ON s.admission_no = p.admission_no AND sf.term_id = p.term_id
-    $where
-    GROUP BY s.admission_no, s.fullname, s.class, sf.fee_amount, sf.carried_forward
+    LEFT JOIN student_fees sf 
+        ON s.admission_no = sf.admission_no AND sf.term_id = $selectedTerm
+    LEFT JOIN (
+        SELECT p1.admission_no, p1.amount_paid
+        FROM payments p1
+        INNER JOIN (
+            SELECT admission_no, MAX(payment_date) AS latest_date
+            FROM payments
+            WHERE term_id = $selectedTerm
+            GROUP BY admission_no
+        ) p2 
+        ON p1.admission_no = p2.admission_no AND p1.payment_date = p2.latest_date
+        WHERE p1.term_id = $selectedTerm
+    ) lp
+    ON s.admission_no = lp.admission_no
+    WHERE s.status='active' AND s.fullname LIKE '%$search%'
+    ORDER BY s.fullname ASC
 ";
-$result = mysqli_query($conn, $query);
+
+$studentsRes = $conn->query($query); // <-- use $studentsRes
 ?>
 
 <!DOCTYPE html>
@@ -160,7 +182,8 @@ $result = mysqli_query($conn, $query);
                 <th>Balance</th>
                 <th>Action</th>
             </tr>
-            <?php while ($row = mysqli_fetch_assoc($result)) { ?>
+            <?php while ($row = mysqli_fetch_assoc($studentsRes)) { ?>
+
             <tr>
                 <td><?php echo htmlspecialchars($row['admission_no']); ?></td>
                 <td><?php echo htmlspecialchars($row['fullname']); ?></td>

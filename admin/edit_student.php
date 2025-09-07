@@ -112,9 +112,9 @@ if (isset($_POST['update'])) {
 
         <label>Class</label>
         <select name="class" required>
+          <option value="Play Group" <?php if($student['class']=="Play Group") echo "selected"; ?>>Play Group</option>
           <option value="PP1" <?php if($student['class']=="PP1") echo "selected"; ?>>PP1</option>
           <option value="PP2" <?php if($student['class']=="PP2") echo "selected"; ?>>PP2</option>
-          <option value="PP3" <?php if($student['class']=="PP3") echo "selected"; ?>>PP3</option>
         </select>
 
         <label>Gender</label>
